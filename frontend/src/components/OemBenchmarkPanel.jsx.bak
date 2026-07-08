@@ -1,0 +1,422 @@
+﻿import { useState } from "react";
+import {
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  Radar, Tooltip, ResponsiveContainer, Legend,
+} from "recharts";
+
+const OEMS = [
+  { name: "Mercedes-Benz", region: "Europe",        country: "Germany",      segment: "Premium",    scores: { csms: 92, tara: 90, ota: 88, backend: 91, safetyCyber: 89, restraint: 90 } },
+  { name: "BMW",           region: "Europe",        country: "Germany",      segment: "Premium",    scores: { csms: 90, tara: 92, ota: 85, backend: 88, safetyCyber: 90, restraint: 91 } },
+  { name: "Audi",          region: "Europe",        country: "Germany",      segment: "Premium",    scores: { csms: 89, tara: 87, ota: 84, backend: 86, safetyCyber: 88, restraint: 87 } },
+  { name: "Volkswagen",    region: "Europe",        country: "Germany",      segment: "Mass",       scores: { csms: 88, tara: 85, ota: 80, backend: 84, safetyCyber: 87, restraint: 86 } },
+  { name: "Porsche",       region: "Europe",        country: "Germany",      segment: "Premium",    scores: { csms: 91, tara: 89, ota: 86, backend: 90, safetyCyber: 88, restraint: 89 } },
+  { name: "Renault",       region: "Europe",        country: "France",       segment: "Mass",       scores: { csms: 84, tara: 82, ota: 79, backend: 81, safetyCyber: 83, restraint: 82 } },
+  { name: "Stellantis",    region: "Europe",        country: "France",       segment: "Mass",       scores: { csms: 83, tara: 80, ota: 77, backend: 80, safetyCyber: 82, restraint: 81 } },
+  { name: "Volvo Cars",    region: "Europe",        country: "Sweden",       segment: "Premium",    scores: { csms: 90, tara: 88, ota: 86, backend: 89, safetyCyber: 91, restraint: 92 } },
+  { name: "Scania",        region: "Europe",        country: "Sweden",       segment: "Commercial", scores: { csms: 82, tara: 80, ota: 74, backend: 78, safetyCyber: 80, restraint: 79 } },
+  { name: "Fiat",          region: "Europe",        country: "Italy",        segment: "Mass",       scores: { csms: 78, tara: 76, ota: 72, backend: 75, safetyCyber: 77, restraint: 76 } },
+  { name: "Ferrari",       region: "Europe",        country: "Italy",        segment: "Premium",    scores: { csms: 87, tara: 85, ota: 83, backend: 86, safetyCyber: 84, restraint: 85 } },
+  { name: "Jaguar Land Rover", region: "Europe",   country: "UK",           segment: "Premium",    parent: "Tata Motors",
+    scores: { csms: 86, tara: 84, ota: 83, backend: 85, safetyCyber: 84, restraint: 86 } },
+  { name: "Tesla",         region: "North America", country: "USA",          segment: "Premium",    scores: { csms: 95, tara: 90, ota: 98, backend: 95, safetyCyber: 85, restraint: 88 } },
+  { name: "Ford",          region: "North America", country: "USA",          segment: "Mass",       scores: { csms: 87, tara: 84, ota: 81, backend: 85, safetyCyber: 83, restraint: 86 } },
+  { name: "GM",            region: "North America", country: "USA",          segment: "Mass",       scores: { csms: 86, tara: 83, ota: 80, backend: 84, safetyCyber: 82, restraint: 85 } },
+  { name: "Toyota",        region: "East Asia",     country: "Japan",        segment: "Mass",       scores: { csms: 92, tara: 88, ota: 82, backend: 90, safetyCyber: 89, restraint: 93 } },
+  { name: "Honda",         region: "East Asia",     country: "Japan",        segment: "Mass",       scores: { csms: 88, tara: 85, ota: 79, backend: 86, safetyCyber: 87, restraint: 89 } },
+  { name: "Nissan",        region: "East Asia",     country: "Japan",        segment: "Mass",       scores: { csms: 84, tara: 81, ota: 77, backend: 82, safetyCyber: 83, restraint: 85 } },
+  { name: "Hyundai",       region: "East Asia",     country: "South Korea",  segment: "Mass",       scores: { csms: 85, tara: 83, ota: 80, backend: 84, safetyCyber: 82, restraint: 83 } },
+  { name: "Kia",           region: "East Asia",     country: "South Korea",  segment: "Mass",       scores: { csms: 83, tara: 81, ota: 78, backend: 82, safetyCyber: 80, restraint: 81 } },
+  { name: "BYD",           region: "East Asia",     country: "China",        segment: "Mass",       scores: { csms: 79, tara: 76, ota: 82, backend: 78, safetyCyber: 75, restraint: 74 } },
+  { name: "Geely",         region: "East Asia",     country: "China",        segment: "Mass",       scores: { csms: 77, tara: 74, ota: 79, backend: 76, safetyCyber: 73, restraint: 72 } },
+  { name: "Tata Motors",   region: "South Asia",    country: "India",        segment: "Mass",       owns: ["Jaguar Land Rover"],
+    scores: { csms: 80, tara: 78, ota: 75, backend: 82, safetyCyber: 77, restraint: 74 } },
+  { name: "Mahindra",      region: "South Asia",    country: "India",        segment: "Mass",       scores: { csms: 72, tara: 70, ota: 68, backend: 71, safetyCyber: 69, restraint: 67 } },
+  { name: "VinFast",       region: "ASEAN",         country: "Vietnam",      segment: "Mass",       scores: { csms: 68, tara: 65, ota: 70, backend: 67, safetyCyber: 64, restraint: 63 } },
+  { name: "Toyota Australia", region: "Oceania",   country: "Australia",    segment: "Mass",       scores: { csms: 85, tara: 82, ota: 78, backend: 83, safetyCyber: 84, restraint: 86 } },
+];
+
+const TIER1_DATA = {
+  "Autoliv":     { csms: 91, tara: 88, ota: 78, backend: 82, safetyCyber: 94, restraint: 97 },
+  "ZF Lifetec":  { csms: 87, tara: 85, ota: 80, backend: 83, safetyCyber: 90, restraint: 92 },
+  "Bosch":       { csms: 93, tara: 91, ota: 89, backend: 92, safetyCyber: 88, restraint: 89 },
+  "Joyson (JSS)":{ csms: 78, tara: 74, ota: 68, backend: 71, safetyCyber: 80, restraint: 83 },
+  "Continental": { csms: 89, tara: 86, ota: 84, backend: 87, safetyCyber: 85, restraint: 88 },
+};
+
+const METRICS_KEYS = [
+  { key: "csms",        label: "CSMS (R155)",       accent: "#2563eb" },
+  { key: "tara",        label: "TARA Depth",         accent: "#7c3aed" },
+  { key: "ota",         label: "OTA Security",       accent: "#0ea5e9" },
+  { key: "backend",     label: "Backend Hardening",  accent: "#f59e0b" },
+  { key: "safetyCyber", label: "Safety-Cyber",       accent: "#ef4444" },
+  { key: "restraint",   label: "Restraint ECU",      accent: "#10b981" },
+];
+
+const COLORS = ["#3b82f6","#f59e0b","#10b981","#ef4444","#8b5cf6","#06b6d4","#f43f5e"];
+
+const REGION_CONFIG = {
+  "Europe":        { color: "#3b82f6" },
+  "North America": { color: "#ef4444" },
+  "East Asia":     { color: "#10b981" },
+  "South Asia":    { color: "#f59e0b" },
+  "ASEAN":         { color: "#8b5cf6" },
+  "Oceania":       { color: "#06b6d4" },
+  "MEA":           { color: "#f97316" },
+  "LATAM":         { color: "#64748b" },
+};
+
+const FILTER_OPTIONS = [
+  { value: "all",          label: "All Regions" },
+  { value: "Europe",       label: "Europe" },
+  { value: "North America",label: "North America" },
+  { value: "East Asia",    label: "East Asia" },
+  { value: "South Asia",   label: "South Asia" },
+  { value: "ASEAN",        label: "ASEAN" },
+  { value: "Oceania",      label: "Oceania" },
+  { value: "premium",      label: "Premium Segment" },
+];
+
+const VIEW_MODES = [
+  { value: "europe",         label: "Europe Leaders" },
+  { value: "global_compare", label: "Global Comparison" },
+  { value: "asia_pacific",   label: "Asia-Pacific" },
+];
+
+const SOUTH_ASIA_INSIGHTS = [
+  { text: "JLR (Europe) â€” Higher OTA & backend maturity, owned by Tata Motors" },
+  { text: "Tata Motors â€” Growing CSMS adoption, strong backend hardening" },
+  { text: "Mahindra â€” Emerging cybersecurity stack, improving TARA depth" },
+];
+
+function maturityIndex(scores) {
+  const vals = Object.values(scores);
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+}
+
+function filterOems(filter) {
+  if (filter === "premium") return OEMS.filter(o => o.segment === "Premium");
+  if (filter === "all")     return OEMS;
+  return OEMS.filter(o => o.region === filter);
+}
+
+function viewModeOems(view) {
+  if (view === "europe")         return OEMS.filter(o => o.region === "Europe");
+  if (view === "global_compare") return OEMS;
+  if (view === "asia_pacific")   return OEMS.filter(o => ["East Asia","South Asia","ASEAN","Oceania"].includes(o.region));
+  return OEMS;
+}
+
+// Dark glass tooltip for radar chart
+function DarkTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-black/80 border border-white/10 rounded-lg px-3 py-2 text-xs text-white/80 backdrop-blur-md">
+      {payload.map((p, i) => (
+        <p key={i} style={{ color: p.color }}>{p.name}: <strong>{p.value}</strong></p>
+      ))}
+    </div>
+  );
+}
+
+// Score pill
+function ScorePill({ score }) {
+  const cls = score >= 85
+    ? "bg-green-500/15 text-green-400 border-green-500/20"
+    : score >= 70
+    ? "bg-amber-500/15 text-amber-400 border-amber-500/20"
+    : "bg-red-500/15 text-red-400 border-red-500/20";
+  const label = score >= 85 ? "Compliant" : score >= 70 ? "Partial" : "Non-Compliant";
+  return (
+    <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${cls}`}>
+      {score} / 100 Â· {label}
+    </span>
+  );
+}
+
+export default function OemBenchmarkPanel({ role = "OEM" }) {
+  const isTier1 = role === "Tier-1";
+
+  const tier1Entities = Object.keys(TIER1_DATA);
+  const [tier1Selected, setTier1Selected] = useState(tier1Entities[0]);
+  const [tier1Compare,  setTier1Compare]  = useState(false);
+
+  const [filter,      setFilter]      = useState("Europe");
+  const [viewMode,    setViewMode]    = useState(null);
+  const [compareMode, setCompareMode] = useState(false);
+  const [selected,    setSelected]    = useState(OEMS[0].name);
+
+  const activeOems   = viewMode ? viewModeOems(viewMode) : filterOems(filter);
+  const selectedOem  = activeOems.find(o => o.name === selected) || activeOems[0];
+  const safeSelected = selectedOem?.name ?? activeOems[0]?.name;
+  const showSouthAsiaInsights = filter === "South Asia" || viewMode === "asia_pacific";
+
+  // â”€â”€ Tier-1 path â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  if (isTier1) {
+    const t1metrics  = TIER1_DATA[tier1Selected];
+    const t1score    = Math.round(Object.values(t1metrics).reduce((a, b) => a + b, 0) / 6);
+    const t1allRadar = METRICS_KEYS.map(m => {
+      const row = { subject: m.label };
+      tier1Entities.forEach(e => { row[e] = TIER1_DATA[e][m.key]; });
+      return row;
+    });
+
+    return (
+      <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-xl overflow-hidden h-full flex flex-col">
+        <div className="px-5 py-4 border-b border-white/10 flex items-start justify-between gap-3 flex-wrap">
+          <div>
+            <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">Tier-1 Supplier</p>
+            <p className="text-sm font-semibold text-white tracking-wide">Cyber-Safety Benchmark</p>
+            <p className="text-xs text-slate-400 mt-0.5">Autoliv Â· ZF Â· Bosch Â· Joyson Â· Continental</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTier1Compare(v => !v)}
+              className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all duration-200 ${
+                tier1Compare
+                  ? "bg-blue-600/80 text-white border-blue-500/50"
+                  : "bg-white/5 text-slate-300 border-white/10 hover:border-white/20 hover:text-white"
+              }`}
+            >
+              {tier1Compare ? "Single" : "Compare All"}
+            </button>
+            {!tier1Compare && (
+              <select
+                value={tier1Selected}
+                onChange={e => setTier1Selected(e.target.value)}
+                className="border border-white/10 bg-white/5 px-2 py-1 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+              >
+                {tier1Entities.map(e => <option key={e}>{e}</option>)}
+              </select>
+            )}
+          </div>
+        </div>
+
+        <div className="p-5 flex-1 flex flex-col">
+          {!tier1Compare && (
+            <>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {METRICS_KEYS.map(m => (
+                  <div key={m.key} className="sub-card bg-black/20 border border-white/10 rounded-lg p-2.5 text-center" style={{ "--sc-accent": m.accent, borderTop:`3px solid ${m.accent}` }}>
+                    <p className="text-[10px] text-slate-300 mb-1 leading-tight font-medium">{m.label}</p>
+                    <p className={`text-lg font-semibold ${t1metrics[m.key] >= 85 ? "text-green-400" : t1metrics[m.key] >= 70 ? "text-amber-400" : "text-red-400"}`}>
+                      {t1metrics[m.key]}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs text-slate-300 font-medium">Maturity Index:</span>
+                <ScorePill score={t1score} />
+              </div>
+            </>
+          )}
+          <div className="flex-1 min-h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              {tier1Compare ? (
+                <RadarChart data={t1allRadar}>
+                  <PolarGrid stroke="rgba(255,255,255,0.12)" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: "#cbd5e1", fontSize: 10, fontWeight: 600 }} />
+                  <PolarRadiusAxis angle={30} domain={[0,100]} tick={{ fill: "#94a3b8", fontSize: 9 }} />
+                  {tier1Entities.map((e, i) => (
+                    <Radar key={e} name={e} dataKey={e} stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.12} />
+                  ))}
+                  <Legend wrapperStyle={{ fontSize: 10, color: "#cbd5e1" }} />
+                  <Tooltip content={<DarkTooltip />} />
+                </RadarChart>
+              ) : (
+                <RadarChart data={METRICS_KEYS.map(m => ({ subject: m.label, value: t1metrics[m.key] }))}>
+                  <PolarGrid stroke="rgba(255,255,255,0.12)" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: "#cbd5e1", fontSize: 10, fontWeight: 600 }} />
+                  <PolarRadiusAxis angle={30} domain={[0,100]} tick={{ fill: "#94a3b8", fontSize: 9 }} />
+                  <Radar name={tier1Selected} dataKey="value" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.20} />
+                  <Tooltip content={<DarkTooltip />} />
+                </RadarChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // â”€â”€ OEM path â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const allRadar = METRICS_KEYS.map(m => {
+    const row = { subject: m.label };
+    activeOems.forEach(o => { row[o.name] = o.scores[m.key]; });
+    return row;
+  });
+  const singleRadar = selectedOem
+    ? METRICS_KEYS.map(m => ({ subject: m.label, value: selectedOem.scores[m.key] }))
+    : [];
+  const score = selectedOem ? maturityIndex(selectedOem.scores) : 0;
+
+  return (
+    <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-xl overflow-hidden h-full flex flex-col">
+
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-white/10 flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">Global OEM</p>
+          <p className="text-sm font-semibold text-white tracking-wide">Cyber-Safety Benchmark</p>
+          <p className="text-xs text-slate-400 mt-0.5">UN R155 / ISO 21434 Â· Regional Maturity</p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setCompareMode(v => !v)}
+            className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all duration-200 ${
+              compareMode
+                ? "bg-blue-600/80 text-white border-blue-500/50"
+                : "bg-white/5 text-slate-300 border-white/10 hover:border-white/20 hover:text-white"
+            }`}
+          >
+            {compareMode ? "Single" : "Compare All"}
+          </button>
+          <select
+            value={viewMode ?? filter}
+            onChange={e => {
+              const v = e.target.value;
+              const isView = VIEW_MODES.some(m => m.value === v);
+              if (isView) { setViewMode(v); setFilter("all"); }
+              else        { setFilter(v);  setViewMode(null); }
+              setSelected(OEMS[0].name);
+            }}
+            className="border border-white/10 bg-white/5 px-2 py-1 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+          >
+            <optgroup label="Region / Segment">
+              {FILTER_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </optgroup>
+            <optgroup label="View Mode">
+              {VIEW_MODES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </optgroup>
+          </select>
+          {!compareMode && activeOems.length > 0 && (
+            <select
+              value={safeSelected}
+              onChange={e => setSelected(e.target.value)}
+              className="border border-white/10 bg-white/5 px-2 py-1 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+            >
+              {activeOems.map(o => <option key={o.name}>{o.name}</option>)}
+            </select>
+          )}
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-5 flex-1 flex flex-col">
+
+        {/* Single view â€” score cards + tags */}
+        {!compareMode && selectedOem && (
+          <>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {[
+                { label: selectedOem.region,   color: REGION_CONFIG[selectedOem.region]?.color ?? "#64748b" },
+                { label: selectedOem.segment,  color: "#64748b" },
+                { label: selectedOem.country,  color: null },
+                ...(selectedOem.parent ? [{ label: `Parent: ${selectedOem.parent}`, color: "#f97316" }] : []),
+                ...(selectedOem.owns ?? []).map(s => ({ label: `Sub: ${s}`, color: "#8b5cf6" })),
+              ].filter(t => t.label).map((tag, i) => (
+                <span
+                  key={i}
+                  className="text-[10px] px-2 py-0.5 rounded font-medium border-l-2"
+                  style={tag.color
+                    ? { borderColor: tag.color, backgroundColor: `${tag.color}15`, color: tag.color }
+                    : { borderColor: "#475569", backgroundColor: "rgba(71,85,105,0.15)", color: "#cbd5e1" }
+                  }
+                >
+                  {tag.label}
+                </span>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {METRICS_KEYS.map(m => (
+                <div key={m.key} className="sub-card bg-black/20 border border-white/10 rounded-lg p-2.5 text-center" style={{ "--sc-accent": m.accent, borderTop:`3px solid ${m.accent}` }}>
+                  <p className="text-[10px] text-slate-300 mb-1 leading-tight font-medium">{m.label}</p>
+                  <p className={`text-lg font-semibold ${selectedOem.scores[m.key] >= 85 ? "text-green-400" : selectedOem.scores[m.key] >= 70 ? "text-amber-400" : "text-red-400"}`}>
+                    {selectedOem.scores[m.key]}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs text-slate-300 font-medium">Maturity Index:</span>
+              <ScorePill score={score} />
+            </div>
+          </>
+        )}
+
+        {/* Radar chart */}
+        <div className="flex-1 min-h-[220px]">
+          <ResponsiveContainer width="100%" height="100%">
+            {compareMode ? (
+              <RadarChart data={allRadar}>
+                <PolarGrid stroke="rgba(255,255,255,0.12)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: "#cbd5e1", fontSize: 10, fontWeight: 600 }} />
+                <PolarRadiusAxis angle={30} domain={[0,100]} tick={{ fill: "#94a3b8", fontSize: 9 }} />
+                {activeOems.map((o, i) => (
+                  <Radar key={o.name} name={o.name} dataKey={o.name}
+                    stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.10} />
+                ))}
+                <Legend wrapperStyle={{ fontSize: 10, color: "#cbd5e1" }} />
+                <Tooltip content={<DarkTooltip />} />
+              </RadarChart>
+            ) : (
+              <RadarChart data={singleRadar}>
+                <PolarGrid stroke="rgba(255,255,255,0.12)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: "#cbd5e1", fontSize: 10, fontWeight: 600 }} />
+                <PolarRadiusAxis angle={30} domain={[0,100]} tick={{ fill: "#94a3b8", fontSize: 9 }} />
+                <Radar name={safeSelected} dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.18} />
+                <Tooltip content={<DarkTooltip />} />
+              </RadarChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+
+        {/* South Asia insight */}
+        {showSouthAsiaInsights && (
+          <div className="mt-4 border-l-2 border-amber-400/60 bg-amber-500/10 rounded-r-lg p-3">
+            <p className="text-xs font-medium text-amber-300 mb-1.5">South Asia â€” Comparative Insight</p>
+            <ul className="space-y-1">
+              {SOUTH_ASIA_INSIGHTS.map((ins, i) => (
+                <li key={i} className="text-[10px] text-amber-200 flex gap-1.5">
+                  <span className="text-amber-400 mt-px">â€”</span>{ins.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Regional grouping */}
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-2 font-semibold">Regional Grouping</p>
+          <div className="grid grid-cols-2 gap-2">
+            {Object.entries(
+              activeOems.reduce((acc, oem) => {
+                if (!acc[oem.region]) acc[oem.region] = [];
+                acc[oem.region].push(oem.name);
+                return acc;
+              }, {})
+            ).map(([region, names]) => (
+              <div key={region} className="rounded-lg p-2 border-l-2"
+                style={{
+                  borderColor: REGION_CONFIG[region]?.color ?? "#475569",
+                  backgroundColor: `${REGION_CONFIG[region]?.color ?? "#475569"}10`,
+                }}>
+                <p className="text-[10px] font-semibold mb-0.5" style={{ color: REGION_CONFIG[region]?.color ?? "#94a3b8" }}>
+                  {region}
+                </p>
+                <p className="text-[10px] text-slate-300 leading-relaxed">{names.join(" Â· ")}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-[10px] text-slate-500 mt-3">
+          * Illustrative benchmark â€” UN R155 &amp; ISO/SAE 21434 aligned.
+        </p>
+      </div>
+    </div>
+  );
+}
+
