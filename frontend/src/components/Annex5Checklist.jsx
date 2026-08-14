@@ -1,8 +1,9 @@
+import { API_BASE } from "../config";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useFilterContext } from "../context/FilterContext";
 import { useEvidence } from "../hooks/useAnalytics";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 const STATUS_OPTIONS = ["Not Started", "In Progress", "Implemented", "Verified"];
 

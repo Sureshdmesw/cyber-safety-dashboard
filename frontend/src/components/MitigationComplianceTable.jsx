@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useEffect, useState } from "react";
 
 const STATUS_STYLE = {
@@ -11,7 +12,7 @@ function MitigationComplianceTable({ component = "" }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/compliance/mitigations")
+    fetch(`${API_BASE}/api/compliance/mitigations`)
       .then(r => r.json())
       .then(d => { setMitigations(d); setLoading(false); })
       .catch(() => setLoading(false));

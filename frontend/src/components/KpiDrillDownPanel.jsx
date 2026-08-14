@@ -1,6 +1,7 @@
+import { API_BASE } from "../config";
 import { useState, useEffect, useCallback } from "react";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 const KPI_META = {
   crash_integrity: {

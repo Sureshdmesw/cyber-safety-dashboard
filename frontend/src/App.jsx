@@ -1,3 +1,4 @@
+import { API_BASE } from "./config";
 import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import {
   LayoutDashboard, ShieldCheck, BarChart3, Upload,
@@ -139,11 +140,11 @@ function AppInner() {
     setLoading(true);
     setTaraData(null);
     Promise.all([
-      fetch(`http://localhost:5000/api/component?role=${encodeURIComponent(role)}`).then(r => r.json()),
-      fetch("http://localhost:5000/api/compliance/annex5-status").then(r => r.json()),
-      fetch("http://localhost:5000/api/compliance/1").then(r => r.json()),
-      fetch("http://localhost:5000/api/compliance/r156-status").then(r => r.json()),
-      fetch("http://localhost:5000/api/compliance/tara-summary").then(r => r.json()),
+      fetch(`${API_BASE}/api/component?role=${encodeURIComponent(role)}`).then(r => r.json()),
+      fetch(`${API_BASE}/api/compliance/annex5-status`).then(r => r.json()),
+      fetch(`${API_BASE}/api/compliance/1`).then(r => r.json()),
+      fetch(`${API_BASE}/api/compliance/r156-status`).then(r => r.json()),
+      fetch(`${API_BASE}/api/compliance/tara-summary`).then(r => r.json()),
     ])
       .then(([comps, annex5, comp1, r156, tara]) => {
         const resolvedComps = (Array.isArray(comps) && comps.length) ? comps : FALLBACK_COMPONENTS;

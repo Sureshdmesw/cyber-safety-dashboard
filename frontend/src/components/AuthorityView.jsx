@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -35,9 +36,9 @@ function AuthorityView() {
   const [mitigations, setMitigations]   = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/compliance/tara-summary")
+    fetch(`${API_BASE}/api/compliance/tara-summary`)
       .then(r => r.json()).then(setTaraData).catch(() => {});
-    fetch("http://localhost:5000/api/compliance/mitigations")
+    fetch(`${API_BASE}/api/compliance/mitigations`)
       .then(r => r.json()).then(setMitigations).catch(() => {});
   }, []);
 

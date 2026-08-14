@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { FileDown, Upload, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -43,7 +44,7 @@ export default function ChecklistUpload({ component, role, onResultsLoaded }) {
     const form = new FormData();
     form.append("file", file);
     try {
-      const res  = await fetch("http://localhost:5000/api/upload/checklist", { method: "POST", body: form });
+      const res  = await fetch(`${API_BASE}/api/upload/checklist`, { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) setError(data.error || "Upload failed");
       else         setResults(data);

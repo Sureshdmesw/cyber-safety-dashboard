@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useState } from "react";
 import ThreatMatrix from "./ThreatMatrix";
 import ThreatCoverageChart from "./ThreatCoverageChart";
@@ -26,7 +27,7 @@ function RestraintSimulator() {
   // ===========================
   const saveValidation = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/simulator", {
+      const res = await fetch(`${API_BASE}/api/simulator`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -54,7 +55,7 @@ function RestraintSimulator() {
   // ===========================
   const runAdvancedValidation = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/simulator/run", {
+      const res = await fetch(`${API_BASE}/api/simulator/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

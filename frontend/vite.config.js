@@ -8,14 +8,7 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-core':  ['react', 'react-dom'],
-          'recharts':    ['recharts'],
-          'pdf-export':  ['jspdf', 'jspdf-autotable', 'html2canvas'],
-          'xlsx-export': ['xlsx'],
-          'pptx-export': ['pptxgenjs'],
-          'icons':       ['lucide-react'],
-        },
+        manualChunks: (id) => { if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) return "react-core"; if (id.includes("node_modules/recharts")) return "recharts"; if (id.includes("node_modules/jspdf") || id.includes("node_modules/jspdf-autotable") || id.includes("node_modules/html2canvas")) return "pdf-export"; if (id.includes("node_modules/xlsx")) return "xlsx-export"; if (id.includes("node_modules/pptxgenjs")) return "pptx-export"; if (id.includes("node_modules/lucide-react")) return "icons"; },
       },
     },
     chunkSizeWarningLimit: 600,

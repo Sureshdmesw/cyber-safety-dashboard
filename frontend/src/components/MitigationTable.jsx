@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useEffect, useState } from "react";
 
 function MitigationTable() {
@@ -6,7 +7,7 @@ function MitigationTable() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/mitigations")
+    fetch(`${API_BASE}/api/mitigations`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch mitigations");

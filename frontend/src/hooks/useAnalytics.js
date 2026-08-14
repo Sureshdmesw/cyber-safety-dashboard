@@ -1,6 +1,7 @@
+import { API_BASE } from "../config";
 import { useEffect, useState, useCallback } from "react";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 export function useAnalytics(role, component, version) {
   const [data,    setData]    = useState(null);

@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useEffect, useState, useMemo } from "react";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -264,7 +265,7 @@ export default function R156OTAPanel({ role = "OEM", component = "", regulation 
   const [showCheckModal, setShowCheckModal] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/compliance/r156-status")
+    fetch(`${API_BASE}/api/compliance/r156-status`)
       .then(r => r.json())
       .then(d => { setRaw(d.components || []); setLoading(false); })
       .catch(() => { setRaw(FALLBACK); setLoading(false); });

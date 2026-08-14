@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useEffect, useState } from "react";
 
 function ThreatMatrix({ data, componentId }) {
@@ -10,8 +11,8 @@ function ThreatMatrix({ data, componentId }) {
     if (data) { setThreats(data); setLoading(false); return; }
 
     const url = componentId
-      ? `http://localhost:5000/api/component/${componentId}/threats`
-      : `http://localhost:5000/api/threats/annex5`;
+      ? `${API_BASE}/api/component/${componentId}/threats`
+      : `${API_BASE}/api/threats/annex5`;
 
     fetch(url)
       .then(res => { if (!res.ok) throw new Error(); return res.json(); })

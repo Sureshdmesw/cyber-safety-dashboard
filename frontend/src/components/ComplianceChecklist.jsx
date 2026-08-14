@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useChecklist, useEvidence } from "../hooks/useAnalytics";
 import { useFilterContext } from "../context/FilterContext";
@@ -10,7 +11,7 @@ import {
   ShieldCheck, FileText, BarChart2, Upload,
 } from "lucide-react";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 // ── Status badge ──────────────────────────────────────────────────
 const STATUS_CFG = {

@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useState, useEffect, useCallback } from "react";
 import { Crosshair, Globe, FileText, Table2, Presentation, Mail, MessageSquare } from "lucide-react";
 import jsPDF from "jspdf";
@@ -5,7 +6,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import PptxGenJS from "pptxgenjs";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 // ── Risk helpers (threat-based, kept for legacy threat export) ────────────────
 const COST  = { Critical: 850000, High: 320000, Medium: 95000, Low: 18000 };

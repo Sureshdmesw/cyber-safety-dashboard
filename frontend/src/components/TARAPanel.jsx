@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useEffect, useState } from "react";
 
 const RISK_COLORS = { Critical: "bg-red-600", High: "bg-orange-500", Medium: "bg-yellow-500", Low: "bg-green-600" };
@@ -30,7 +31,7 @@ function TARAPanel({ component }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/compliance/tara-summary")
+    fetch(`${API_BASE}/api/compliance/tara-summary`)
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));

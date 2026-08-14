@@ -1,3 +1,4 @@
+import { API_BASE } from "../config";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ShieldCheck, Globe, TrendingUp, FileText, Table2, Presentation, Mail, MessageSquare, Paperclip, X } from "lucide-react";
 import jsPDF from "jspdf";
@@ -5,7 +6,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import PptxGenJS from "pptxgenjs";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 // Endpoint config per checklist type
 const ENDPOINTS = {

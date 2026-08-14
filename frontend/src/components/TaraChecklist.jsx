@@ -1,6 +1,7 @@
+import { API_BASE } from "../config";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 
 const STATUS_OPTIONS = ["Not Started", "In Progress", "Completed", "Verified"];
 const RISK_OPTIONS   = ["Low", "Medium", "High", "Critical"];
@@ -451,7 +452,7 @@ export default function TaraChecklist({ role, component }) {
             ⬇ Export CSV
           </button>
           <a
-            href={`http://localhost:5000/api/templates/tara-ctsa?role=${encodeURIComponent(role)}&component=${encodeURIComponent(component||"")}`}
+            href={`${API_BASE}/api/templates/tara-ctsa?role=${encodeURIComponent(role)}&component=${encodeURIComponent(component||"")}`}
             download
             className="text-xs px-3 py-1.5 rounded border border-emerald-400 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 font-semibold transition-colors">
             📥 Download CTSA Template

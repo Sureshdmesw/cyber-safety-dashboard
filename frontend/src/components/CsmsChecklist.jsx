@@ -1,6 +1,7 @@
+import { API_BASE } from "../config";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 
-const BASE = "http://localhost:5000";
+const BASE = API_BASE;
 const STATUS_OPTIONS = ["Not Started", "In Progress", "Implemented", "Verified"];
 const STATUS_STYLE = {
   "Not Started": "bg-gray-100 text-gray-600 border-gray-300",
